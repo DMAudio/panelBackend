@@ -1,0 +1,80 @@
+# [index] https://github.com/golangci/golangci-lint
+# [example] https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
+
+run:
+  tests: true
+
+linters-settings:
+  govet:
+    enable:
+      - atomicalign #启用了对同名变量名在函数中被隐藏的警告
+    settings:
+      printf: # analyzer name, run `go tool vet help` to see all analyzers
+        funcs: # run `go tool vet help printf` to see available settings for `printf` analyzer
+          - github.com/DMAudio/panelBackend/package/log/Logger.Tracef
+          - github.com/DMAudio/panelBackend/package/log/Logger.Debugf
+          - github.com/DMAudio/panelBackend/package/log/Logger.Infof
+          - github.com/DMAudio/panelBackend/package/log/Logger.Warnf
+          - github.com/DMAudio/panelBackend/package/log/Logger.Errorf
+          - github.com/DMAudio/panelBackend/package/log/Logger.Panicf
+          - github.com/DMAudio/panelBackend/package/log/Logger.Fatalf
+          - github.com/DMAudio/panelBackend/package/log/Logger.Printf
+          - github.com/DMAudio/panelBackend/package/log/Logger.Stackf
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: "github.com/kentalee" # 格式化代码时，本地代码单独块
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      # - style
+      # - performance
+    disabled-checks:
+      #- wrapperFunc
+      #- dupImport # https://github.com/go-critic/go-critic/issues/845
+      - commentedOutCode
+      - ifElseChain
+    settings: # settings passed to gocritic
+      captLocal: # must be valid enabled check name
+        paramsOnly: true
+      # rangeValCopy:
+      #   sizeThreshold: 32
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose # http.resp.body 内存泄露检查的
+    # - dupl # 重复代码检查
+    # - deadcode
+    # - errcheck
+    # - goconst
+    - gocritic # https://go-critic.github.io/overview
+    - govet
+    - gofmt
+    - goimports
+    - gosimple
+    # - golint
+    # - gosec
+    # - varcheck
+    - interfacer
+    - ineffassign
+    - staticcheck  # https://staticcheck.io/docs/checks
+    - structcheck
+    # - stylecheck
+    - typecheck
+    - unconvert
+    # - unparam
+    # - unused
+    # - whitespace # 空行检测
+    # - misspell # 拼写错误检查
+
+# issues:
+#   # Excluding configuration per-path, per-linter, per-text and per-source
+#   exclude-rules:
+#     # Exclude some linters from running on tests files.
+#     - path: _test\.go
+#       linters:
+#         - gocyclo
+#         - errcheck
+#         - dupl
+#         - gosec
