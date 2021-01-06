@@ -3,6 +3,7 @@ package api_http
 import (
 	"context"
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 
@@ -10,16 +11,30 @@ import (
 	"github.com/DMAudio/panelBackend/package/log"
 )
 
-type apiService struct {
+const ServiceType = "api_http"
+
+var serviceInitialize sync.Once
+var serviceInstance *ServiceST
+
+func GetService() *ServiceST {
+	if serviceInstance == nil{
+		serviceInitialize.Do(func() {
+			serviceInstance = &ServiceST{}
+		})
+	}
+	return serviceInstance
+}
+
+type ServiceST struct {
 	server *http.Server
 	engine *gin.Engine
 }
 
-func (s apiService) Type() string {
-	return "api_http"
+func (s ServiceST) Type() string {
+	return ServiceType
 }
 
-func (s apiService) Serve(stopped func()) {
+func (s ServiceST) Serve(stopped func()) {
 	gin.SetMode(gin.DebugMode)
 	engine := gin.Default()
 	engine.Use(func(c *gin.Context) {
@@ -34,7 +49,7 @@ func (s apiService) Serve(stopped func()) {
 	}()
 }
 
-func (s apiService) Shutdown(done func()) {
+func (s ServiceST) Shutdown(done func()) {
 	if s.server == nil {
 		done()
 		return
@@ -47,5 +62,5 @@ func (s apiService) Shutdown(done func()) {
 }
 
 func Load() {
-	service.Register(&apiService{})
+	service.Register(GetService())
 }
